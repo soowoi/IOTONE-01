@@ -1,6 +1,5 @@
 #include <HS3UKA_PCF8574.h>
 
-
 #define AUTO_PIN 25
 #define MANUAL_PIN 26
 #define BUTTON_1 36
@@ -9,8 +8,8 @@
 #define MODE_AUTO 1
 #define MODE_MANUAL 2
 #define MODE_OFF 3
-
 HS3UKA_PCF8574 pcf8574;
+
 // Variables will change:
 int buttonPushCounter = 0;   // counter for the number of button presses
 int currentState1 = 0;         // current state of the button
@@ -28,17 +27,12 @@ unsigned long debounceTime = 50;
 int getCurrentMode() {
   int autopin = digitalRead(AUTO_PIN);
   int manualpin = digitalRead(MANUAL_PIN);
-  //Serial.println(String(manualpin)+String(autopin));
   if (autopin == 0 && manualpin == 1 ) {
     return MODE_AUTO;
   }
   else if (autopin == 1 && manualpin == 0 ) {
     return MODE_MANUAL;
   }
-  /*
-  else if (autopin == 1 && manualpin == 1 ) {
-    return MODE_OFF;
-  }*/
   else {
     return MODE_OFF;
   }
@@ -67,37 +61,32 @@ void closeAllRelay() {
   pcf8574.digitalWrite(2, HIGH);
 }
 
-void loop() {
 
-
+void mn_fnc(){
+  if (current_mode != MODE_MANUAL) 
+    return ;
+     
   currentState1 = digitalRead(BUTTON_1);
   currentState2 = digitalRead(BUTTON_2);
-  
-  current_mode = getCurrentMode();
-  Serial.println("Current Mode ="+String(current_mode) );
-  if ( current_mode == MODE_MANUAL) {
-    
-    if ( currentState1 != lastState1 && (millis() - lastDebounceTime1) > debounceTime && currentState1 == LOW) {
+
+  if ( currentState1 != lastState1 && (millis() - lastDebounceTime1) > debounceTime && currentState1 == LOW) {
       toggleRelay(1);
       lastDebounceTime1 = millis();
     }
 
-    if ( currentState2 != lastState2 && (millis() - lastDebounceTime2) > debounceTime && currentState2 == LOW) {
-      toggleRelay(3);
+   if ( currentState2 != lastState2 && (millis() - lastDebounceTime2) > debounceTime && currentState2 == LOW) {
+      toggleRelay(2);
       lastDebounceTime2 = millis();
-    }
-   
-  }
-
-  /*
-  else if (current_mode == MODE_OFF) {
-    closeAllRelay();
-  }*/
-
-  //Serial.println(String(digitalRead(MANUAL_PIN)) + String(digitalRead(AUTO_PIN)));
+   }
 
   lastState1 = currentState1;
   lastState2 = currentState2;
+}
+
+void loop() {
+
+  current_mode = getCurrentMode();
+  mn_fnc();  
   delay(10); // Optional delay for loop rate control
 
 }
